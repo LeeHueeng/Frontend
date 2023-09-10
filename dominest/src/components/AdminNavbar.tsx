@@ -1,42 +1,51 @@
-// import React from "react";
+import React, { useEffect } from "react";
+import { useNavbar, onLogout } from "@/utils/useAuth/useAuth";
 import { css } from "@emotion/react";
-import styled from "@emotion/styled";
 import { HiOutlineUserCircle } from "react-icons/hi";
 import { CiStar } from "react-icons/ci";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import React from "react";
-import { NavStyle, LeftNav, NavList, LoginState } from "@/style/NavStyle";
+import {
+  NavStyle,
+  LeftNav,
+  NavList,
+  LoginState,
+  NavItem,
+} from "@/style/NavStyle";
+import { startList, startSelect } from "@/utils/navbar/favorites";
+import { categoriesList } from "@/utils/navbar/categoriesList";
 /** @jsxImportSource @emotion/react */
 
-const NavItem = css`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  list-style: none;
-  padding-left: 0px;
-`;
+const Navber = (props: { page: string }) => {
+  const { Name, Role, Token } = useNavbar();
+  const [FavoritesList, setFavoritesList] = React.useState<any[]>([]);
+  const [Catago, setCatago] = React.useState<any[]>([]);
 
-const Navber = (props) => {
-  const [name, setName] = React.useState("이용자");
-  const [role, setRole] = React.useState("근로생");
-  const router = useRouter();
-  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  //즐겨찾기 목록
+  useEffect(() => {
+    const favoritesData = async () => {
+      const favorites = await startList(Token);
 
-  const handleLogout = () => {
-    localStorage.removeItem("authToken");
-    setIsLoggedIn(false);
-  };
+      setFavoritesList(favorites);
+    };
 
-  const onLogout = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    // 로컬 스토리지에서 토큰 삭제
-    localStorage.removeItem("authToken");
-    // 로그아웃 후 로그인 페이지로 이동
-    router.push("/login");
-  };
+    const catagories = async () => {
+      const catagories = await categoriesList(Token);
+      setCatago(catagories);
+    };
 
+    catagories();
+    favoritesData();
+  }, [Token]);
+
+  //카테고리 전체 조회
+  useEffect(() => {
+    const fetchData = async () => {
+      const favorites = await startList(Token);
+      setFavoritesList(favorites);
+    };
+
+    fetchData();
+  }, [Token]);
   return (
     <NavStyle>
       <Link className="Link" href="/">
@@ -47,58 +56,66 @@ const Navber = (props) => {
         <NavList>
           <li>
             <p>즐겨찾기</p>
-            <ul css={NavItem}>
-              <li>
-                <Link href="/login" className="Link">
-                  <span>빵빵이</span>
-                  <CiStar size={20} />
-                </Link>
-              </li>
-              <li>
-                <Link href="/login" className="Link">
-                  <span>빵빵이</span>
-                  <CiStar size={20} />
-                </Link>
-              </li>
-            </ul>
-
-            {/* 다른 즐겨찾기 아이템들 추가 */}
+            <NavItem>
+              {FavoritesList.map((favorites) => (
+                <li key={favorites.id}>
+                  <Link href={favorites.categoryLink} className="Link">
+                    <span>{favorites.categoryName}</span>
+                  </Link>
+                  <CiStar
+                    size={20}
+                    onClick={() => startSelect(Token, favorites.categoryId)}
+                  />
+                </li>
+              ))}
+            </NavItem>
           </li>
           <li>
-            <p>관리자 목록</p>
+            <p>관리 목록</p>
 
-            <ul css={NavItem}>
+            <NavItem>
               <li>
-                <Link href="/studentupload" className="Link">
+                <Link href="/infodata/studentupload" className="Link">
                   <span>학생정보 업로드</span>
-                  <CiStar size={20} />
                 </Link>
+                <CiStar size={20} />
               </li>
-              <li>
-                <Link href="/student" className="Link">
-                  <span>학생정보 업로드</span>
-                  <CiStar size={20} />
-                </Link>
-              </li>
-            </ul>
-          </li>
-          <li>
-            <p>근로생 목록</p>
-
-            <ul css={NavItem}>
               <li>
                 <Link href="/admissionform" className="Link">
                   <span>입관신청서</span>
-                  <CiStar size={20} />
                 </Link>
+                <CiStar size={20} />
               </li>
               <li>
                 <Link href="/departureform" className="Link">
                   <span>퇴관신청서</span>
-                  <CiStar size={20} />
                 </Link>
+                <CiStar size={20} />
               </li>
-            </ul>
+              <li>
+                <Link href="/categories/categoryManage" className="Link">
+                  <span>카테고리 관리</span>
+                </Link>
+                <CiStar size={20} />
+              </li>
+            </NavItem>
+          </li>
+          <li>
+            <p>근로생 목록</p>
+
+            <NavItem>
+              {Catago.map((categories) => (
+                <li key={categories.id}>
+                  <Link href={categories.categoryLink} className="Link">
+                    <span>{categories.name}</span>
+                  </Link>
+                  <CiStar
+                    size={20}
+                    onClick={() => startSelect(Token, categories.id)}
+                  />
+                </li>
+              ))}
+            </NavItem>
 
             {/* 다른 근로생 목록 아이템들 추가 */}
           </li>
@@ -107,15 +124,41 @@ const Navber = (props) => {
       <strong>{props.page}</strong>
       <LoginState>
         <HiOutlineUserCircle className="loginIcon" size={25} />
-        {role === "근로생" ? <span>근로생</span> : <span>관리자</span>}
         <span
           css={css`
             color: green;
+            font-weight: bold;
+            font-size: 18px;
             margin-right: 5px;
+            margin-left: 5px;
           `}
         >
-          {name}
+          {Name}
         </span>
+        {Role === "Admin" ? (
+          <span
+            css={css`
+              font-weight: bold;
+              font-size: 13px;
+              margin-right: 5px;
+              margin-left: 5px;
+            `}
+          >
+            근로생
+          </span>
+        ) : (
+          <span
+            css={css`
+              font-weight: bold;
+              font-size: 13px;
+              margin-right: 5px;
+              margin-left: 5px;
+            `}
+          >
+            관리자
+          </span>
+        )}
+
         <button className="logout" onClick={onLogout}>
           로그아웃
         </button>

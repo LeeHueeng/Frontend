@@ -6,7 +6,7 @@ export const NavStyle = styled.div`
   justify-content: space-around;
   align-items: center;
   width: 100vw;
-  height: 7.5vh;
+  height: 56px;
   background-color: #dcdcdc;
 
   .Link {
@@ -49,7 +49,7 @@ export const NavList = styled.ul`
       box-shadow: 5px 5px 5px gray;
       border:   1px solid #c4c4c4;
       width: 169px;
-      top: 7.5vh;
+      top:56px;
       position: absolute;
       display: none;
       background-color: white;
@@ -61,7 +61,6 @@ export const NavList = styled.ul`
       
       }
     }
-  }
 `;
 export const LoginState = styled.div`
   display: flex;
@@ -93,4 +92,12 @@ export const LoginState = styled.div`
       display: block;
     }
   }
+`;
+export const NavItem = styled.ul`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  list-style: none;
+  padding-left: 0px;
 `;

@@ -1,4 +1,3 @@
-
 "use client";
 import Navbar from "@/components/AdminNavbar";
 import { useRouter } from "next/navigation";
@@ -13,16 +12,15 @@ function Home({}: Props) {
     const authToken = localStorage.getItem("authToken");
 
     if (!authToken) {
-      router.push("/login");
+      router.push("/user/login");
     }
-  }, []);
+  }, [router]);
 
   return (
     <>
-       <Navbar />
+      <Navbar page="메인페이지" />
     </>
   );
 }
 
 export default Home;
-
